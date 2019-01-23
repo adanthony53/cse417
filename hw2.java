@@ -20,9 +20,9 @@ class hw2 {
 
 	static class Graph {
 		public int V, E; // No. of vertices & Edges respectively
-		public LinkedList<Integer>[] adj; // Adjacency List
-		public List<List<Edge>> bcc = new LinkedList<>();
-		public Set<Integer> art = new HashSet<>();
+		public LinkedList<Integer>[] adj; // Adjacency List - Graph
+		public List<List<Edge>> bcc = new LinkedList<>();	//stores the biconnected components
+		public Set<Integer> art = new HashSet<>();	//stores the articulation points
 
 		// dfsCounter
 		public int time = 1;
@@ -62,11 +62,12 @@ class hw2 {
 			time++;
 
 			// Go through all vertices adjacent to this
-			Iterator<Integer> it = adj[u].iterator();
-			while (it.hasNext()) {
-				int v = it.next(); // v is current adjacent of 'u'
+			Iterator<Integer> iter = adj[u].iterator();
+			while (iter.hasNext()) {
+				int v = iter.next(); // v is current adjacent of 'u'
 
 				// If v is not visited yet, then recur for it
+				// tree edge
 				if (visited[v] == -1) {
 					parent[v] = u;
 
@@ -86,13 +87,13 @@ class hw2 {
 						while (st.peek().u != u || st.peek().v != v) {
 							temp.add(st.pop());
 						}
-						temp.add(st.pop());
+						//the edge  u--v is in the biconnected components
+						temp.add(st.pop());	
 						bcc.add(new LinkedList<>(temp));
 					}
-				}
-
-				// Update low value if not parent // back edge
-				else if (v != parent[u] && visited[v] < visited[u]) {
+				} else if (v != parent[u] && visited[v] < visited[u]) {
+					// Update low value if not parent // back edge
+					
 					if (low[u] > visited[v]) low[u] = visited[v];
 					st.add(new Edge(u, v));
 				}
@@ -104,24 +105,27 @@ class hw2 {
 			int visited[] = new int[V];
 			int low[] = new int[V];
 			int parent[] = new int[V];
-			Stack<Edge> st = new Stack<Edge>();
+			Stack<Edge> stack = new Stack<Edge>();
 
 			Arrays.fill(visited, -1);
 			Arrays.fill(low, -1);
 			Arrays.fill(parent, -1);
 
-			for (int i = 0; i < V; i++) {
-				if (visited[i] == -1) dfs(i, visited, low, st, parent);
+			//for (int i = 0; i < V; i++) {
+			//int i = 0;
+			//if (visited[i] == -1) 
+			// assuming only connected graph
+			dfs(0, visited, low, stack, parent);
 
-				// If stack is not empty, pop all edges from stack
-				boolean leftover = false;
-				LinkedList<Edge> temp = new LinkedList<>();
-				while (st.size() > 0) {
-					leftover = true;
-					temp.add(st.pop());
-				}
-				if (leftover) bcc.add(new LinkedList<>(temp));
+			// If stack is not empty, pop all edges from stack
+			boolean leftover = false;
+			LinkedList<Edge> temp = new LinkedList<>();
+			while (stack.size() > 0) {
+				leftover = true;
+				temp.add(stack.pop());
 			}
+			if (leftover) bcc.add(new LinkedList<>(temp));
+			//}
 		}
 	}
 
